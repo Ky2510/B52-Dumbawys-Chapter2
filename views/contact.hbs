@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>D11Chapter2 - Add Project</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body style="background-color: #e3e7eb;">
+     <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary px-5">
+        <div class="container-fluid">
+            <a class="navbar-brand"  href="#"><img src="assets/image/logo.png" alt="" style="width: 45px;"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/addProject">Add Project</a>
+                    </li>
+                </ul>
+                  <a type="button" href="/contact" class="btn btn-secondary btn-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <h3 class="text-center mt-4 fw-bold">GET IN TOUCH</h3>
+    <section class="contact">
+        <div class="container mt-4 w-50">
+            <div class="row">
+                <form>
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bolder">Name</label>
+                        <input type="name" class="form-control shadow bg-body rounded" id="name"  placeholder="Enter...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bolder">Email</label>
+                        <input type="email" class="form-control shadow bg-body rounded" id="email"  placeholder="Enter...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone-number" class="form-label fw-bolder">Phone Number</label>
+                        <input type="number" class="form-control shadow bg-body rounded" id="phone-number"  placeholder="Enter...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label fw-bolder">Subject</label>
+                        <select class="form-select" aria-label="Default select example">
+                            <option>Select Subject</option>
+                            <option value="1">Front-end Developer</option>
+                            <option value="2">Back-end Developer</option>
+                            <option value="3">Fullstack Developer</option>
+                        </select>
+                    </div>
+                    <div class="mt-3">
+                        <label for="message" class="form-label fw-bolder">Message</label>
+                        <textarea class="form-control shadow bg-body rounded" id="message" rows="4">Enter...</textarea>
+                    </div>
+                    <div class="mt-3 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-dark rounded-5 px-4">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script src="assets/javascript/day4blogs.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+  </body>
+</html>

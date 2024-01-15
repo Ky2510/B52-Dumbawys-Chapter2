@@ -3,20 +3,20 @@ const app = express()
 const port = 3000
 
 app.set('view engine', 'hbs')
-app.set('views', 'views')
 
 app.use('/assets', express.static('public/assets'))
 
 app.get('/', home)
 app.get('/detail/:linkTitle', detail)
 app.get('/addProject', addProjects)
+app.get('/contact', contact)
 
 
 data =  [
           {
             'id' : 1,
             'title' : "Kursus Digital Marketing - 2024",
-            'linkTitle' : 'kursus-digital-Marketing',
+            'linkTitle' : 'kursus-digital-marketing',
             'startDate' : '12 Jan 2024',
             'endDate' : '15 Mar 2024',
             'tech1' : 'Laravel',
@@ -70,6 +70,7 @@ function home(req, res) {
   res.render('index', {data})
 }
 
+// response dimana server dapat merespon permintaan dari client
 function detail(req, res) {
   const { linkTitle } = req.params
   const project = data.find(val => val.linkTitle == linkTitle)
@@ -78,6 +79,10 @@ function detail(req, res) {
 
 function addProjects(req, res) {
     res.render('addProject')
+}
+
+function contact(req, res) {
+    res.render('contact')
 }
 
 app.listen(port, () => {
