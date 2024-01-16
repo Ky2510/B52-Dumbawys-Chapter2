@@ -5,86 +5,177 @@ const port = 3000
 app.set('view engine', 'hbs')
 
 app.use('/assets', express.static('public/assets'))
+app.use(express.urlencoded({extended:false})) //parse inputan dari html
 
 app.get('/', home)
-app.get('/detail/:linkTitle', detail)
+app.get('/detail/:id', detail)
 app.get('/addProject', addProjects)
+app.post('/post-project', postProject)
+app.get('/edit-project/:id', editProjects)
+app.post('/update-project/:id', updateProject)
+app.get('/delete-project/:id', deleteProject)
 app.get('/contact', contact)
 
 
-data =  [
-          {
-            'id' : 1,
-            'title' : "Kursus Digital Marketing - 2024",
-            'linkTitle' : 'kursus-digital-marketing',
-            'startDate' : '12 Jan 2024',
-            'endDate' : '15 Mar 2024',
-            'tech1' : 'Laravel',
-            'icon1' : 'fa-brands fa-laravel',
-            'tech2' : 'Sass',
-            'icon2' : 'fa-brands fa-sass',
-            'duration' : "1 bulan",
-            'image' : "https://sasanadigilab.com/wp-content/uploads/2022/08/Screen-Shot-2022-08-09-at-17.09.12-large.jpg",
-            'content' : "Donec vulputate volutpat nunc ac accumsan. Phasellus eleifend odio eu enim luctus porttitor. Quisque eget sem a",
-          },
-          {
-            'id' : 2,
-            'title' : "Python - 2024",
-            'linkTitle' : 'Python',
-            'startDate' : '15 Feb 2024',
-            'endDate' : '10 Mar 2024',
-            'tech1' : 'Python',
-            'icon1' : 'fa-brands fa-python',
-            'tech2' : 'Python',
-            'icon2' : 'fa-brands fa-python',
-            'tech3' : 'Python',
-            'icon3' : 'fa-brands fa-python',
-            'tech4' : 'Python',
-            'icon4' : 'fa-brands fa-python',
-            'duration' : "4 bulan",
-            'image' : "https://i.pinimg.com/originals/d2/69/43/d26943a4e6a8d3dfbb1f95cf0cedf282.jpg",
-            'content' : "Donec vulputate volutpat nunc ac accumsan. Phasellus eleifend odio eu enim luctus porttitor. Quisque eget sem a",
-          },
-          {
-            'id' : 3,
-            'title' : "Sass - 2024",
-            'linkTitle' : 'Sass',
-            'startDate' : '23 Aug 2024',
-            'endDate' : '03 Oct 2024',
-            'tech1' : 'Sass',
-            'icon1' : 'fa-brands fa-sass',
-            'tech2' : 'Sass',
-            'icon2' : 'fa-brands fa-sass',
-            'tech3' : 'Sass',
-            'icon3' : 'fa-brands fa-sass',
-            'tech4' : 'Sass',
-            'icon4' : 'fa-brands fa-sass',
-            'duration' : "5 bulan",
-            'image' : "https://images7.alphacoders.com/133/1337527.png",
-            'content' : "Donec vulputate volutpat nunc ac accumsan. Phasellus eleifend odio eu enim luctus porttitor. Quisque eget sem a",
-          }
-        ]
-
+data =  []
         
 function home(req, res) {
-  res.render('index', {data})
+  res.render('index', {data, title:"Home"})
 }
 
-// response dimana server dapat merespon permintaan dari client
 function detail(req, res) {
-  const { linkTitle } = req.params
-  const project = data.find(val => val.linkTitle == linkTitle)
-  res.render('detailProject', {project})
+  const { id } = req.params
+  const dataProject = data[id]
+  console.log(dataProject)
+  res.render('detailProject', {dataProject, title: dataProject.name})
 }
 
 function addProjects(req, res) {
-    res.render('addProject')
+    res.render('addProject', {
+      'title' : "Add Project"
+    })
+}
+
+function postProject(req, res) {
+    // Range
+    const newId = data.length + 0;
+    const starDate = req.body.stardate
+    const endDate = req.body.enddate
+    const starDateV = new Date(starDate)
+    const endDateV = new Date(endDate)
+    const duration = endDateV - starDateV
+    const rangeDuration = duration / (1000 * 60 * 60 * 24)
+    // Month & Day
+    let vRangeDuration
+    let textDate
+    if (rangeDuration > 29) { 
+        vRangeDuration = Math.floor(rangeDuration / 30) 
+        textDate = "month"
+    }else{
+        vRangeDuration = rangeDuration
+        textDate = "day"
+    }
+    const imageDefault = "/assets/image/foto.jpg"
+    const { name, stardate, enddate, description, php, laravel, sass, python } = req.body
+    data.push({id: newId, name, stardate, enddate, description, php, laravel, sass, python, vRangeDuration, textDate, imageDefault})
+    res.redirect('/')
+}
+
+
+function editProjects(req, res) {
+  const { id } = req.params
+  const dataProject = data[id]
+
+  
+  const python = dataProject.python
+  const php = dataProject.php
+  const laravel = dataProject.laravel 
+  const sass = dataProject.sass
+
+  let checkedpython
+  let checkedphp
+  let checkedsass
+  let checkedlaravel
+  if (python === "python") {
+    checkedpython = `checked`
+  }
+  if (php === "php") {
+    checkedphp = `checked`
+  }
+  if (sass === "sass") {
+    checkedsass = `checked`
+  }
+  if (laravel === "laravel") {
+    checkedlaravel = `checked`
+  }
+  res.render('editProject', {dataProject, checkedpython, checkedphp, checkedsass, checkedlaravel, title: dataProject.name})
+}
+
+
+function updateProject(req, res) {
+  const { id } = req.params
+  const newName = req.body.name
+  const newStarDate = req.body.stardate
+  const newEndDate = req.body.enddate
+  const newDescription = req.body.description
+  const newLaravel = req.body.laravel
+  const newPython = req.body.python
+  const newSass = req.body.sass
+  const newPhp = req.body.php
+  const newStarDateV = new Date(newStarDate)
+  const newEndDateV = new Date(newEndDate)
+  const duration = newEndDateV - newStarDateV
+  const newRangeDuration = duration / (1000 * 60 * 60 * 24)
+
+  // Month & Day
+  let newVRangeDuration
+  let newTextDate
+  if (newRangeDuration > 29) { 
+      newVRangeDuration = Math.floor(newRangeDuration / 30) 
+      newTextDate = "month"
+  }else{
+      newVRangeDuration = newRangeDuration
+      newTextDate = "day"
+  }
+
+  const index = parseInt(id)
+  // definisi variable yang mengandung logika dan mendefinisikan inputan baru
+  data[index] = {
+      id : index,
+      name : newName,
+      stardate: newStarDate,
+      enddate: newEndDate,
+      description: newDescription,
+      vRangeDuration: newVRangeDuration,
+      textDate: newTextDate,
+      laravel: newLaravel,
+      php: newPhp,
+      sass: newSass,
+      python: newPython,
+  }
+  const imageDefault = "/assets/image/foto.jpg"
+  // besar = 0 dan kecil dari banyak data
+  if (index >= 0 && index < data.length) {
+    data.splice(index, 1, {
+        id: index,
+        name: newName,
+        imageDefault: imageDefault,
+        vRangeDuration: newVRangeDuration,
+        textDate : newTextDate,
+        stardate : newStarDate,
+        enddate : newEndDate,
+        description: newDescription,
+        laravel: newLaravel,
+        php: newPhp,
+        sass: newSass,
+        python: newPython,
+    });
+
+    res.redirect('/');
+  } else {
+      res.send('data tidak ditemukan')
+  }
+}
+
+function deleteProject(req, res) {
+  const { id } = req.params
+  const index = parseInt(id)
+
+  if (index >= 0  && index < data.length) {
+    data.splice(index, 1)
+    res.redirect('/')
+  }else{
+    res.send('data tidak ditemukan')
+  }
 }
 
 function contact(req, res) {
-    res.render('contact')
+    res.render('contact', {
+      title : "Contact"
+    })
 }
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
