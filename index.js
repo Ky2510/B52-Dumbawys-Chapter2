@@ -26,7 +26,6 @@ function home(req, res) {
 function detail(req, res) {
   const { id } = req.params
   const dataProject = data[id]
-  console.log(dataProject)
   res.render('detailProject', {dataProject, title: dataProject.name})
 }
 
@@ -36,24 +35,26 @@ function addProjects(req, res) {
     })
 }
 
+// Menambahkan Data
 function postProject(req, res) {
-    // Range
-    const newId = data.length + 0;
+    const newId = data.length + 0
+
     const starDate = req.body.stardate
     const endDate = req.body.enddate
     const starDateV = new Date(starDate)
     const endDateV = new Date(endDate)
+
     const duration = endDateV - starDateV
     const rangeDuration = duration / (1000 * 60 * 60 * 24)
     // Month & Day
     let vRangeDuration
     let textDate
     if (rangeDuration > 29) { 
-        vRangeDuration = Math.floor(rangeDuration / 30) 
-        textDate = "month"
+      vRangeDuration = Math.floor(rangeDuration / 30) 
+      textDate = "month"
     }else{
-        vRangeDuration = rangeDuration
-        textDate = "day"
+      vRangeDuration = rangeDuration
+      textDate = "day"
     }
     const imageDefault = "/assets/image/foto.jpg"
     const { name, stardate, enddate, description, php, laravel, sass, python } = req.body
@@ -136,6 +137,7 @@ function updateProject(req, res) {
   const imageDefault = "/assets/image/foto.jpg"
   // besar = 0 dan kecil dari banyak data
   if (index >= 0 && index < data.length) {
+    // splice itu menghapus atau mengubah object
     data.splice(index, 1, {
         id: index,
         name: newName,
@@ -160,9 +162,10 @@ function updateProject(req, res) {
 function deleteProject(req, res) {
   const { id } = req.params
   const index = parseInt(id)
-
+  // besar = 0 dan kecil dari banyak data
   if (index >= 0  && index < data.length) {
-    data.splice(index, 1)
+    // splice itu menghapus atau mengubah object
+    data.splice(index, 1) // 1 : total object yang akan dihapus dari array dimulai dari index
     res.redirect('/')
   }else{
     res.send('data tidak ditemukan')
@@ -173,6 +176,12 @@ function contact(req, res) {
     res.render('contact', {
       title : "Contact"
     })
+}
+
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  const formattedDate = new Date(dateString).toLocaleDateString('id-ID', options);
+  return formattedDate;
 }
 
 app.listen(port, () => {
