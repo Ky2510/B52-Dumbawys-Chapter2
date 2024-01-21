@@ -19,9 +19,28 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold" aria-current="page" href="/">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="/addProject">Add Project</a>
-                        </li>
+                        {{#if successLogin }}
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/addProject">Add Project</a>
+                            </li>
+                        {{/if}}
+                    </ul>
+                    <ul class="navbar-nav ml-auto me-4 mb-2 mb-lg-0">
+                        {{#if successLogin }}
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold">Hello, {{ user }}</a>
+                            </li>
+                            <li class="nav-item ms-3">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+                        {{else }}
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/login">Login</a>
+                            </li>
+                        {{/if }}
                     </ul>
                     <a type="button" href="/contact" class="btn btn-dark btn-md">Contact</a>
                 </div>
@@ -102,9 +121,13 @@
                                        {{/if}}
                                     </p>
                                     <div class="d-flex gap-2 mt-4">
-                                        <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
-                                        <a href="edit-project/{{ this.id  }}" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Edit</a>
-                                        <a href="delete-project/{{ this.id }}" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Delete</a>
+                                       {{#if ../successLogin }} {{!-- ../ menujukkan bahwa kode itu diluar #each --}}
+                                            <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
+                                            <a href="edit-project/{{ this.id }}" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Edit</a>
+                                            <a href="delete-project/{{ this.id }}" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Delete</a>
+                                        {{else}}
+                                            <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
+                                        {{/if}}
                                     </div>
                                 </div>
                             </div>

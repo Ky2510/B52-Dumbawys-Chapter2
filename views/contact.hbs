@@ -24,7 +24,24 @@
                         <a class="nav-link" aria-current="page" href="/addProject">Add Project</a>
                     </li>
                 </ul>
-                  <a type="button" href="/contact" class="btn btn-secondary btn-md">Contact</a>
+                <ul class="navbar-nav ml-auto me-4 mb-2 mb-lg-0">
+                    {{#if successLogin }}
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold">Hello, {{ user }}</a>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    {{else }}
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="/register">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="/login">Login</a>
+                        </li>
+                    {{/if }}
+                </ul>
+                <a type="button" href="/contact" class="btn btn-secondary btn-md">Contact</a>
             </div>
         </div>
     </nav>
