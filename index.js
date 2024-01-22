@@ -4,10 +4,11 @@ const bcrypt = require('bcrypt')
 const flash = require('express-flash')
 const session = require('express-session')
 
-const { Sequelize } = require('sequelize')
-const { Project } = require('./models')
+const { Sequelize, where } = require('sequelize')
 
+const { Project } = require('./models')
 const { User } = require('./models')
+const { Profile } = require('./models')
 
 const app = express()
 const port = 3000
@@ -37,6 +38,7 @@ app.post('/post-project', postProject)
 app.get('/edit-project/:id', editProjects)
 app.post('/update-project/:id', updateProject)
 app.get('/delete-project/:id', deleteProject)
+app.post('/post-profile', postProfile)
 app.get('/contact', contact)
 app.get('/register', register)
 app.post('/register', registerPOST)
@@ -55,7 +57,7 @@ function register(req, res) {
 
 async function registerPOST(req, res) {
     const { name, email, password } = req.body
-    const salt = 10
+    const salt = 10 // salt = mengaduk character sehingga tidak beraturan
     try {
       bcrypt.hash(password, salt, async function(err, hashPass) {
         await User.create({
@@ -99,6 +101,7 @@ async function loginPOST(req, res) {
       if (result) {
             req.session.loginPOST = true
             req.session.user = nameInDatabase
+            req.session.idUser = emailCheck.id
             req.flash('success', 'Welcome my App');
             res.redirect('/')
       } else {
@@ -122,13 +125,44 @@ async function home(req, res) {
         // res.render('index', {data, title:"Home"})
   
         // ORM => Object-Relational Mapping 
-        const data = await Project.findAll()
-        res.render('index', { 
-          data, 
-          title: "Home",
-          user: req.session.user,
-          successLogin: req.session.loginPOST 
-        })
+        const userID = req.session.idUser
+        if (userID) {
+            const profile = await Profile.findOne({
+                where: { user_id: userID }
+            });
+            let profileID
+            let profileName
+            let bool
+            if (profile) {
+                profileID = profile.user_id
+                profileName = profile.first_name
+                bool =  profileID === userID
+            }
+
+            const data = await Project.findAll({
+              where: { user_id: userID },
+              include: User
+            })
+
+            res.render('index', { 
+              data, 
+              title: "Home",
+              user: req.session.user,
+              profileActive: bool, 
+              profileName,
+              successLogin: req.session.loginPOST 
+            })
+        }else{
+          const data = await Project.findAll({
+            include: User, 
+          })
+          res.render('index', { 
+            data, 
+            title: "Home",
+            user: req.session.user,
+            successLogin: req.session.loginPOST 
+          })
+        }
     } catch (error) {
       console.error('Unable to connect to the database:', error)
     }
@@ -149,6 +183,7 @@ function addProjects(req, res) {
 async function postProject(req, res) { 
     const { name, description, sass, laravel, php, python, startdate, enddate } = req.body
     
+    const userID = req.session.idUser
     const starDateV = new Date(startdate)
     const endDateV = new Date(enddate)
     const duration = endDateV - starDateV
@@ -185,6 +220,7 @@ async function postProject(req, res) {
           python,
           php,
           image: "/assets/image/foto.jpg",
+          user_id: userID,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
@@ -379,6 +415,31 @@ function contact(req, res) {
       user: req.session.user, 
       successLogin: req.session.loginPOST,
     })
+}
+
+async function postProfile(req, res) {
+    const { first_name, second_name, place_birth, date_birth, phone_number, address } = req.body
+    const userID = req.session.idUser
+
+    let formattedDateBirth 
+    if (moment(date_birth, 'YYYY-MM-DD', true).isValid()) {
+      formattedDateBirth = moment(date_birth).format('YYYY-MM-DD')
+    }
+    try {
+      await Profile.create({
+        first_name,
+        second_name,
+        place_birth,
+        date_birth: formattedDateBirth,
+        phone_number,
+        address,
+        user_id: userID
+      })
+      res.redirect('/')
+      console.log(req.body.first_name)
+    } catch (error) {
+      console.error('data failed save to the database:', error)
+    }
 }
 
 app.listen(port, () => {

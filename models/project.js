@@ -1,14 +1,13 @@
 'use strict';
 const { Model } = require('sequelize');
+const User = require('./User');
+
 module.exports = (sequelize, DataTypes) => {
   class Project extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      Project.belongsTo(models.User, {
+        foreignKey: 'user_id',
+      });
     }
   }
   Project.init({
@@ -21,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     python: DataTypes.STRING,
     laravel: DataTypes.STRING,
     php: DataTypes.STRING,
-    image: DataTypes.STRING
+    image: DataTypes.STRING,
+    user_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Project',

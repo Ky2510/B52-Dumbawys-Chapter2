@@ -21,9 +21,6 @@ module.exports = {
       description: {
         type: Sequelize.TEXT
       },
-      duration: {
-        type: Sequelize.TEXT
-      },
       sass: {
         type: Sequelize.STRING
       },
@@ -36,8 +33,20 @@ module.exports = {
       php: {
         type: Sequelize.STRING
       },
+      duration: {
+        type: Sequelize.STRING
+      },
       image: {
         type: Sequelize.STRING
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,

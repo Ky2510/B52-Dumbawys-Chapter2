@@ -27,9 +27,69 @@
                     </ul>
                     <ul class="navbar-nav ml-auto me-4 mb-2 mb-lg-0">
                         {{#if successLogin }}
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold">Hello, {{ user }}</a>
+                           <li class="nav-item">
+                                <a class="nav-link fw-bold dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Hello, {{#if profileActive }} {{ profileName }}  {{else }} {{ user }} {{/if }}</a>
+                                <div class="dropdown">
+                                    <ul class="dropdown-menu">
+                                        {{#if profileActive }}
+                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createProfileModal1"> Profile</a></li>
+                                        {{else }}
+                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createProfileModal">Create Profile</a></li>
+                                        {{/if }}
+                                    </ul>
+                                </div>
                             </li>
+                            <div class="modal fade" id="createProfileModal" tabindex="-1" aria-labelledby="createProfileModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="createProfileModalLabel">Create Profile</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="/post-profile" method="POST">
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="phone_number" class="form-label">First name</label>
+                                                            <input type="text" class="form-control" name="first_name" id="firstName" placeholder="Enter your firstname">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="placeBirth" class="form-label">Place of birth</label>
+                                                            <input type="text" class="form-control" name="place_birth" id="placeBirth" placeholder="Enter your place of birth">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="secondName" class="form-label">Second name</label>
+                                                            <input type="text" class="form-control" name="second_name" id="secondName" placeholder="Enter your second name">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="dateBirth" class="form-label">Date of birth</label>
+                                                            <input type="date" class="form-control" name="date_birth" id="dateBirth">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                                                        <input type="text" class="form-control" name="phone_number" id="phoneNumber" placeholder="Enter your phone number">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <div class="form-floating">
+                                                            <textarea class="form-control" name="address" placeholder="Leave a comment here" id="addressUser"></textarea>
+                                                            <label for="addressUser">Enter Your Address</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-secondary">Save</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                             <li class="nav-item ms-3">
                                 <a class="nav-link" href="/logout">Logout</a>
                             </li>
@@ -96,7 +156,9 @@
         </div>
         <div class="card">
             <div class="card-body" style="background-color: #f8f8f8;">
-                <h2 class="text-center fw-bold my-5">My Project</h2>
+                {{#if successLogin}}
+                    <h2 class="text-center fw-bold my-5">My Project</h2>
+                {{/if}}
                 <div class="row row-cols-1 row-cols-md-3 g-1">
                     {{#each data}}
                         <div class="col">
@@ -120,6 +182,7 @@
                                         <i class="fa-brands fa-php fa-2x"></i>
                                        {{/if}}
                                     </p>
+                                    <p>{{ User.name }} </p>
                                     <div class="d-flex gap-2 mt-4">
                                        {{#if ../successLogin }} {{!-- ../ menujukkan bahwa kode itu diluar #each --}}
                                             <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
@@ -128,6 +191,7 @@
                                         {{else}}
                                             <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
                                         {{/if}}
+                                        
                                     </div>
                                 </div>
                             </div>
