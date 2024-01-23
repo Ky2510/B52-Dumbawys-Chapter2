@@ -49,8 +49,9 @@
     </nav>
     <div class="row mt-5 m-5">
         <h1 class="text-center fw-bold">{{ dataProject.name }}</h1>
+        <h4 class="text-center fst-italic">By {{ dataProject.Profile.first_name  }} {{ dataProject.Profile.second_name }} </h4>
         <div class="col-lg-7 col-sm-12 mt-5">
-            <img src="{{ dataProject.image }}" class="img-fluid w-100" style="height: 450px;" alt="{{ dataProject.image }}">
+            <img src="/assets/image/{{ dataProject.image }}" class="img-fluid w-100" style="height: 450px;" alt="{{ dataProject.image }}">
         </div>
         <div class="col-lg-5 col-sm-12 mt-5">
             <div class="mx-5">

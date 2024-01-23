@@ -3,8 +3,16 @@ const moment = require('moment')
 const bcrypt = require('bcrypt')
 const flash = require('express-flash')
 const session = require('express-session')
+const fs = require('fs').promises // promises => menghindari blocking(dimana data berjalan secara serentak)
 
-const { Sequelize, where } = require('sequelize')
+const path = require('path')
+const uploadImage = require('./middlewares/uploadImage')
+
+
+// config by query
+const { development } = require('./config/config.json')
+const { Sequelize, QueryTypes } = require('sequelize')
+const SequelizePool = new Sequelize(development)
 
 const { Project } = require('./models')
 const { User } = require('./models')
@@ -16,6 +24,7 @@ const port = 3000
 app.set('view engine', 'hbs')
 
 app.use('/assets', express.static('public/assets'))
+app.use('/uploadImages', express.static('public/assets/image'))
 app.use(express.urlencoded({extended:false})) //parse inputan dari html
 
 app.use(session({
@@ -32,18 +41,22 @@ app.use(flash())
 // })
 
 app.get('/', home)
+
 app.get('/detail/:id', detail)
 app.get('/addProject', addProjects)
-app.post('/post-project', postProject)
+app.post('/post-project', uploadImage.single('image'), postProject)
 app.get('/edit-project/:id', editProjects)
-app.post('/update-project/:id', updateProject)
+app.post('/update-project/:id', uploadImage.single('image'), updateProject)
 app.get('/delete-project/:id', deleteProject)
+
 app.get('/profile', profile)
 app.post('/post-profile', postProfile)
 app.post('/add-description-profile/:id', addDescriptionProfile)
 app.post('/add-role-profile/:id', addRoleProfile)
 app.post('/post-profile', postProfile)
+
 app.get('/contact', contact)
+
 app.get('/register', register)
 app.post('/register', registerPOST)
 app.get('/login', login)
@@ -136,10 +149,15 @@ async function home(req, res) {
             })
             let profileID
             let profileName
+            let profileFirstName
+            let profileRole
             let bool
             if (profile) {
                 profileID = profile.user_id
                 profileName = profile.first_name
+                profileFirstName = profile.first_name
+                profileSecondName = profile.second_name
+                profileRole = profile.role
                 bool =  profileID === userID
             }
             // const query = await SequelizePool.query(
@@ -165,6 +183,9 @@ async function home(req, res) {
               user: req.session.user,
               profileActive: bool, 
               profileName,
+              profileRole,
+              profileFirstName,
+              profileSecondName,
               successLogin: req.session.loginPOST 
             })
         }else{
@@ -198,7 +219,7 @@ function addProjects(req, res) {
 
 async function postProject(req, res) { 
     const { name, description, sass, laravel, php, python, startdate, enddate } = req.body
-    
+    const image = req.file.filename
     const userID = req.session.idUser
     const starDateV = new Date(startdate)
     const endDateV = new Date(enddate)
@@ -235,7 +256,7 @@ async function postProject(req, res) {
           laravel,
           python,
           php,
-          image: "/assets/image/foto.jpg",
+          image: image,
           user_id: userID,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -274,7 +295,6 @@ async function editProjects(req, res) {
     // const project = await sequelize.query(`SELECT * FROM "Project" WHERE id = ${id}`)
     // console.log(project)
     const project = await Project.findOne({ where: { id: id } })
-
     const { startdate, enddate, laravel, sass, php, python } = project
 
     const checkedlaravel = laravel === 'laravel' ? 'checked' : ''
@@ -306,9 +326,30 @@ async function updateProject(req, res) {
   const { id } = req.params
   try {
     const project = await Project.findOne({ where: { id: id } })
-    
     if (project) {
       const {name, description, startdate, enddate, sass, laravel, php, python } = req.body
+      if (req.file) {
+        // Dapatkan nama gambar yang baru
+        image = req.file.filename;
+    
+        // Hapus gambar lama jika ada
+        if (project.image) {
+          const imageDirectory = path.join('public/assets/image', project.image)
+          try {
+            await fs.unlink(imageDirectory)
+          } catch (error) {
+            console.error(`Error delete image file: ${error.message}`);
+          }
+        }
+      } else {
+          // Jika tidak ada file baru, gunakan file lama
+          image = project.image; 
+      }
+      
+      // Simpan file yang baru ke folder 'public/assets/image'
+      const newImageFilePath = path.join('public/assets/image', image);
+      console.log(`File baru ${newImageFilePath} akan disimpan`);
+    
 
       const starDateV = new Date(startdate)
       const endDateV = new Date(enddate)
@@ -326,39 +367,40 @@ async function updateProject(req, res) {
       }
       
       await project.update({
-        name,
-        description,
-        startdate,
-        enddate,
-        duration: `${vRangeDuration} ${textDate}`,
-        laravel: laravel === 'laravel' ? 'laravel' : null,
-        sass: sass === 'sass' ? 'sass' : null,
-        php: php === 'php' ? 'php' : null,
-        python: python === 'python' ? 'python' : null,
-        image:  "/assets/image/foto.jpg"
-      }, { where: {id: id} })
+          name,
+          description,
+          startdate,
+          enddate,
+          duration: `${vRangeDuration} ${textDate}`,
+          laravel: laravel === 'laravel' ? 'laravel' : null,
+          sass: sass === 'sass' ? 'sass' : null,
+          php: php === 'php' ? 'php' : null,
+          python: python === 'python' ? 'python' : null,
+          image: image
+        }, { where: {id: id}})
       res.redirect('/')
-        // komentar dibawah menggunakan query sequelize (UPDATE)
-        // const projectSql = `
-        // UPDATE "Project"
-        // SET "id"=${id},
-        //     "name"='${req.body.name}',
-        //     "startdate"='${req.body.startdate}',
-        //     "enddate"='${req.body.enddate}',
-        //     "description"='${req.body.description}',
-        //     "duration"='${vRangeDuration} ${textDate}',
-        //     "laravel"='${laravel}',
-        //     "sass"='${sass}',
-        //     "php"='${php}',
-        //     "python"='${python}',
-        //     "image"='${req.body.image}',
-        //     "createdAt"='${project.createdAt}',
-        //     "updatedAt"='${new Date()}'
-        // WHERE 
-        //     "id"=${id}`
-        // console.log(projectSql)
-        // await sequelize.query(projectSql, { type: sequelize.QueryTypes.UPDATE })
-        // res.redirect('/')
+      // komentar dibawah menggunakan query sequelize (UPDATE)
+      // const projectSql = `
+      // UPDATE "Project"
+      // SET "id"=${id},
+      //     "name"='${req.body.name}',
+      //     "startdate"='${req.body.startdate}',
+      //     "enddate"='${req.body.enddate}',
+      //     "description"='${req.body.description}',
+      //     "duration"='${vRangeDuration} ${textDate}',
+      //     "laravel"='${laravel}',
+      //     "sass"='${sass}',
+      //     "php"='${php}',
+      //     "python"='${python}',
+      //     "image"='${req.body.image}',
+      //     "createdAt"='${project.createdAt}',
+      //     "updatedAt"='${new Date()}'
+      // WHERE 
+      //     "id"=${id}`
+      // console.log(projectSql)
+      // await sequelize.query(projectSql, { type: sequelize.QueryTypes.UPDATE })
+      // res.redirect('/')
+
     } else {
       console.error('Data not found')
     }
@@ -377,6 +419,14 @@ async function deleteProject(req, res) {
       // komentar dibawah menggunakan query sequelize (DELETE)
       // const projectSql = `DELETE FROM "Projects" WHERE "id"=${id}`
       if (project) {
+        if (project.image) {
+          const imageDirectory = path.join('public/assets/image', project.image)
+          try {
+            await fs.unlink(imageDirectory)
+          } catch (error) {
+            console.error(`Error deleting image file: ${error.message}`);
+          }
+        }
         await Project.destroy({
           where: {id: id}
         })
@@ -396,33 +446,83 @@ async function deleteProject(req, res) {
 
 async function detail(req, res) {
   const { id } = req.params //req params => mengambil data bedasarkan URL
-  const dataProject = await Project.findOne({where: {id: id} })
-
-  let icons = []
-  if ('laravel' === dataProject.laravel) {
-    icons.push({name:dataProject.laravel, icon: `fa-laravel`})
+  const userID = req.session.idUser
+  if (userID) {
+      const profile = await Profile.findOne({
+          where: { user_id: userID }
+      })
+      let profileID
+      let profileName
+      let bool
+      if (profile) {
+          profileID = profile.user_id
+          profileName = profile.first_name
+          bool =  profileID === userID
+      }
+      const dataProject = await Project.findOne({
+        where: { user_id: userID },
+        include: User,
+        include: Profile,
+      })
+      console.log(dataProject.Profile)
+      let icons = []
+      if ('laravel' === dataProject.laravel) {
+        icons.push({name:dataProject.laravel, icon: `fa-laravel`})
+      }
+      if ('python' === dataProject.python) {
+        icons.push({name:dataProject.python, icon: `fa-python`})
+      }
+      if ('sass' === dataProject.sass) {
+        icons.push({name:dataProject.sass, icon: `fa-sass`})
+      }
+      if ('php' === dataProject.php) {
+        icons.push({name:dataProject.php, icon: `fa-php`})
+      }
+    
+      const formattedStartDate = moment(dataProject.startdate).format('DD MMMM YYYY')
+      const formattedEndDate = moment(dataProject.enddate).format('DD MMMM YYYY')
+      res.render('detailProject', {
+        dataProject,
+        icons,
+        formattedStartDate, 
+        formattedEndDate, 
+        title: dataProject.name,
+        user: req.session.user, 
+        successLogin: req.session.loginPOST,
+      })
+  }else{
+      const dataProject = await Project.findOne({
+        where: { id: id } ,
+        include: User,
+        include: Profile,
+      })
+    
+      let icons = []
+      if ('laravel' === dataProject.laravel) {
+        icons.push({name:dataProject.laravel, icon: `fa-laravel`})
+      }
+      if ('python' === dataProject.python) {
+        icons.push({name:dataProject.python, icon: `fa-python`})
+      }
+      if ('sass' === dataProject.sass) {
+        icons.push({name:dataProject.sass, icon: `fa-sass`})
+      }
+      if ('php' === dataProject.php) {
+        icons.push({name:dataProject.php, icon: `fa-php`})
+      }
+    
+      const formattedStartDate = moment(dataProject.startdate).format('DD MMMM YYYY')
+      const formattedEndDate = moment(dataProject.enddate).format('DD MMMM YYYY')
+      res.render('detailProject', {
+        dataProject,
+        icons,
+        formattedStartDate, 
+        formattedEndDate, 
+        title: dataProject.name,
+        user: req.session.user, 
+        successLogin: req.session.loginPOST,
+      })
   }
-  if ('python' === dataProject.python) {
-    icons.push({name:dataProject.python, icon: `fa-python`})
-  }
-  if ('sass' === dataProject.sass) {
-    icons.push({name:dataProject.sass, icon: `fa-sass`})
-  }
-  if ('php' === dataProject.php) {
-    icons.push({name:dataProject.php, icon: `fa-php`})
-  }
-
-  const formattedStartDate = moment(dataProject.startdate).format('DD MMMM YYYY')
-  const formattedEndDate = moment(dataProject.enddate).format('DD MMMM YYYY')
-  res.render('detailProject', {
-    dataProject,
-    icons,
-    formattedStartDate, 
-    formattedEndDate, 
-    title: dataProject.name,
-    user: req.session.user, 
-    successLogin: req.session.loginPOST,
-  })
 }
 
 function contact(req, res) {
