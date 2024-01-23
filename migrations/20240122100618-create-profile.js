@@ -27,6 +27,12 @@ module.exports = {
       address: {
         type: Sequelize.TEXT
       },
+      description: {
+        type: Sequelize.TEXT
+      },
+      role: {
+        type: Sequelize.STRING
+      },
       user_id: {
         type: Sequelize.INTEGER,
         references: {

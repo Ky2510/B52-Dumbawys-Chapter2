@@ -32,7 +32,9 @@
                                 <div class="dropdown">
                                     <ul class="dropdown-menu">
                                         {{#if profileActive }}
-                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createProfileModal1"> Profile</a></li>
+                                            <li>
+                                                <a href="/profile" class="dropdown-item"> Profile</a>
+                                            </li>
                                         {{else }}
                                             <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createProfileModal">Create Profile</a></li>
                                         {{/if }}
@@ -89,7 +91,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <li class="nav-item ms-3">
                                 <a class="nav-link" href="/logout">Logout</a>
                             </li>
@@ -166,8 +167,9 @@
                                 <img src="{{ image }}" class="card-img-top" style="height: 260px;" style="height: 260px;" alt="...">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ name }}</h5> 
+                                    <p class="fst-italic fs-6 float-end"> {{ Profile.first_name  }} {{ Profile.second_name }} </p>
                                     <p class="text-muted fs-6">Duration: {{ duration }}</p>
-                                    <p class="card-text mt-4">{{ description }}</p>
+                                    <p class="card-text mt-1">{{ description }}</p>
                                     <p class="card-text mt-4">
                                        {{#if laravel }}
                                         <i class="fa-brands fa-laravel fa-2x"></i>
@@ -182,7 +184,6 @@
                                         <i class="fa-brands fa-php fa-2x"></i>
                                        {{/if}}
                                     </p>
-                                    <p>{{ User.name }} </p>
                                     <div class="d-flex gap-2 mt-4">
                                        {{#if ../successLogin }} {{!-- ../ menujukkan bahwa kode itu diluar #each --}}
                                             <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
@@ -191,7 +192,6 @@
                                         {{else}}
                                             <a href="detail/{{ this.id }}" target="_blank" class="btn btn-sm btn-dark rounded-3 w-100" type="button">Detail</a>
                                         {{/if}}
-                                        
                                     </div>
                                 </div>
                             </div>

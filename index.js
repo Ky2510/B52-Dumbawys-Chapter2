@@ -38,6 +38,10 @@ app.post('/post-project', postProject)
 app.get('/edit-project/:id', editProjects)
 app.post('/update-project/:id', updateProject)
 app.get('/delete-project/:id', deleteProject)
+app.get('/profile', profile)
+app.post('/post-profile', postProfile)
+app.post('/add-description-profile/:id', addDescriptionProfile)
+app.post('/add-role-profile/:id', addRoleProfile)
 app.post('/post-profile', postProfile)
 app.get('/contact', contact)
 app.get('/register', register)
@@ -129,7 +133,7 @@ async function home(req, res) {
         if (userID) {
             const profile = await Profile.findOne({
                 where: { user_id: userID }
-            });
+            })
             let profileID
             let profileName
             let bool
@@ -138,10 +142,21 @@ async function home(req, res) {
                 profileName = profile.first_name
                 bool =  profileID === userID
             }
-
+            // const query = await SequelizePool.query(
+            // ` SELECT 
+            //     projects.id, name, startdate, enddate, duration, sass, python, laravel, php, description, image, projects."createdAt", users.id AS user_id 
+            //   FROM 
+            //     projects 
+            //   LEFT JOIN 
+            //     users 
+            //   ON 
+            //   projects.user_id = users.id ORDER BY projects.id DESC`, 
+            //   { type: QueryTypes.SELECT })
+            
             const data = await Project.findAll({
               where: { user_id: userID },
-              include: User
+              include: User,
+              include: Profile,
             })
 
             res.render('index', { 
@@ -155,6 +170,7 @@ async function home(req, res) {
         }else{
           const data = await Project.findAll({
             include: User, 
+            include: Profile,
           })
           res.render('index', { 
             data, 
@@ -417,6 +433,70 @@ function contact(req, res) {
     })
 }
 
+async function profile(req, res) {
+  if (req.session.loginPOST) {
+    try {
+        const userID = req.session.idUser
+        if (userID) {
+            const profile = await Profile.findOne({
+                where: { user_id: userID }
+            })
+            let profileID
+            let profileFirstName
+            let profileSecondName
+            let profilePlaceBirthName
+            let profileDateBirthName
+            let profilePhoneNumber
+            let profileAddress
+            let profileDescription
+            let profileRole
+            let bool
+            if (profile) {
+                profileID = profile.user_id
+                profileFirstName = profile.first_name
+                profileSecondName = profile.second_name
+                profilePlaceBirthName = profile.place_birth
+                profileDateBirthName = moment(profile.date_birth).format('DD MMMM YYYY')
+                profilePhoneNumber = profile.phone_number
+                profileAddress = profile.address
+                profileDescription = profile.description
+                profileRole = profile.role
+                bool =  profileID === userID
+            }
+            const descriptionBool = profileDescription === null
+            const roleBool = profileRole === null
+            res.render('profile', { 
+              title: "Profile",
+              user: req.session.user,
+              profileActive: bool, 
+              profileFirstName,
+              profileSecondName,
+              profilePlaceBirthName,
+              profileDateBirthName,
+              profilePhoneNumber,
+              profileAddress,
+              profileDescription,
+              descriptionBool,
+              profileRole,
+              roleBool,
+              successLogin: req.session.loginPOST,
+              userID : userID
+            })
+        }else{
+          res.render('index', { 
+            title: "Profile",
+            user: req.session.user,
+            successLogin: req.session.loginPOST 
+          })
+        }
+    } catch (error) {
+      console.error('Unable to connect to the database:', error)
+    }
+  }else{
+    res.redirect('/')
+  }
+}
+
 async function postProfile(req, res) {
     const { first_name, second_name, place_birth, date_birth, phone_number, address } = req.body
     const userID = req.session.idUser
@@ -435,11 +515,58 @@ async function postProfile(req, res) {
         address,
         user_id: userID
       })
-      res.redirect('/')
-      console.log(req.body.first_name)
+      res.redirect('/profile')
     } catch (error) {
       console.error('data failed save to the database:', error)
     }
+}
+
+async function addDescriptionProfile(req, res) {
+  const { description } = req.body
+  const userID = req.session.idUser
+  try {
+    if (userID) {
+      const profile = await Profile.findOne({
+        where: { user_id: userID }
+      })
+      await profile.update({
+        description
+      })
+      res.redirect('/profile')
+    }else{
+      res.render('index', { 
+        title: "Profile",
+        user: req.session.user,
+        successLogin: req.session.loginPOST 
+      })
+    }
+  } catch (error) {
+    console.error('Unable to connect to the database:', error)
+  }
+}
+
+async function addRoleProfile(req, res) {
+  const { role } = req.body
+  const userID = req.session.idUser
+  try {
+    if (userID) {
+      const profile = await Profile.findOne({
+        where: { user_id: userID }
+      })
+      await profile.update({
+        role,
+      })
+      res.redirect('/profile')
+    }else{
+      res.render('index', { 
+        title: "Profile",
+        user: req.session.user,
+        successLogin: req.session.loginPOST 
+      })
+    }
+  } catch (error) {
+    console.error('Unable to connect to the database:', error)
+  }
 }
 
 app.listen(port, () => {
