@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const flash = require('express-flash')
 const session = require('express-session')
 const fs = require('fs').promises // promises => menghindari blocking(dimana data berjalan secara serentak)
+const dbPool = require('./connections/index')
 
 const path = require('path')
 const uploadImage = require('./middlewares/uploadImage')
@@ -33,12 +34,6 @@ app.use(session({
 }))
 
 app.use(flash())
-
-// connect to database by sequelize
-// const sequelize = new Sequelize('db_personalweb', 'postgres', 'Lavesfar123', {
-//   host: 'localhost',
-//   dialect:'postgres' 
-// })
 
 app.get('/', home)
 
@@ -137,10 +132,6 @@ function logout(req, res) {
 
 async function home(req, res) {
     try {
-        // komentar dibawah menggunakan query sequelize (READ)
-        // const [data] = await sequelize.query('SELECT * FROM "Projects"')
-        // res.render('index', {data, title:"Home"})
-  
         // ORM => Object-Relational Mapping 
         const userID = req.session.idUser
         if (userID) {
@@ -160,17 +151,26 @@ async function home(req, res) {
                 profileRole = profile.role
                 bool =  profileID === userID
             }
-            // const query = await SequelizePool.query(
-            // ` SELECT 
-            //     projects.id, name, startdate, enddate, duration, sass, python, laravel, php, description, image, projects."createdAt", users.id AS user_id 
-            //   FROM 
-            //     projects 
-            //   LEFT JOIN 
-            //     users 
-            //   ON 
-            //   projects.user_id = users.id ORDER BY projects.id DESC`, 
-            //   { type: QueryTypes.SELECT })
-            
+            // const query = `
+            //                 SELECT 
+            //                   projects.id, name, startdate, enddate, duration, sass, python, laravel, php, description, image, projects."createdAt", users.id AS user_id 
+            //                 FROM 
+            //                   projects 
+            //                 LEFT JOIN 
+            //                   users 
+            //                 ON 
+            //                   projects.user_id = users.id
+            //                 LEFT JOIN 
+            //                   profiles 
+            //                 ON 
+            //                   projects.profile_id = profiles.id
+            //                 WHERE 
+            //                   projects.id = ${id}
+            //                 ORDER BY 
+            //                   projects.id DESC
+            //               `
+            // const data = await SequelizePool.query(query, { type: Sequelize.QueryTypes.SELECT })
+           
             const data = await Project.findAll({
               where: { user_id: userID },
               include: User,
@@ -261,28 +261,17 @@ async function postProject(req, res) {
           createdAt: new Date(),
           updatedAt: new Date(),
         })
+
+        // await SequelizePool.query(`
+        //   INSERT INTO projects(
+        //    name, startdate, enddate, duration, description, sass, 
+        //    laravel, python, php, image, user_id,"createdAt", "updatedAt") 
+        //   VALUES (
+        //    '${name}','${formattedStartDate}', '${formattedEndDate}',
+        //    '${vRangeDuration} ${textDate}','${description}','${sass}','${laravel}','${python}',
+        //    '${php}','${image}','${userID}', NOW(), NOW())`
+        //   )
         res.redirect('/')
-        // komentar dibawah menggunakan query sequelize (CREATE)
-        // const createProjectSql =  `INSERT INTO "Project"
-        // (
-        //   name, startdate, enddate, description, laravel, python, 
-        //   php, sass, image, duration, "createdAt", "updatedAt"
-        // )VALUES(
-        //   ${name}, 
-        //   ${starDate}, 
-        //   ${endDate}, 
-        //   ${description}, 
-        //   ${imageDefault}, 
-        //   ${laravelValue}, 
-        //   ${pythonValue},
-        //   ${phpValue},
-        //   ${sassValue},
-        //   ${imageDefault},
-        //   ${vRangeDuration} ${textDate},
-        //   NOW(),
-        //   NOW(),
-        // )`
-        // console.log(createProjectSql)
     } catch (error) {
         console.error('data failed save to the database:', error)
     }
@@ -291,9 +280,7 @@ async function postProject(req, res) {
 async function editProjects(req, res) {
   if (req.session.loginPOST) {
     const { id } = req.params
-    // komentar dibawah menggunakan query sequelize (CREATE)
-    // const project = await sequelize.query(`SELECT * FROM "Project" WHERE id = ${id}`)
-    // console.log(project)
+    // const project = await SequelizePool.query(`SELECT * FROM projects WHERE id = ${id}`)
     const project = await Project.findOne({ where: { id: id } })
     const { startdate, enddate, laravel, sass, php, python } = project
 
@@ -325,6 +312,7 @@ async function editProjects(req, res) {
 async function updateProject(req, res) {
   const { id } = req.params
   try {
+    // const project = await SequelizePool.query(`SELECT * FROM projects WHERE id = ${id}`)
     const project = await Project.findOne({ where: { id: id } })
     if (project) {
       const {name, description, startdate, enddate, sass, laravel, php, python } = req.body
@@ -379,28 +367,21 @@ async function updateProject(req, res) {
           image: image
         }, { where: {id: id}})
       res.redirect('/')
-      // komentar dibawah menggunakan query sequelize (UPDATE)
-      // const projectSql = `
-      // UPDATE "Project"
-      // SET "id"=${id},
-      //     "name"='${req.body.name}',
-      //     "startdate"='${req.body.startdate}',
-      //     "enddate"='${req.body.enddate}',
-      //     "description"='${req.body.description}',
-      //     "duration"='${vRangeDuration} ${textDate}',
-      //     "laravel"='${laravel}',
-      //     "sass"='${sass}',
-      //     "php"='${php}',
-      //     "python"='${python}',
-      //     "image"='${req.body.image}',
-      //     "createdAt"='${project.createdAt}',
-      //     "updatedAt"='${new Date()}'
-      // WHERE 
-      //     "id"=${id}`
-      // console.log(projectSql)
-      // await sequelize.query(projectSql, { type: sequelize.QueryTypes.UPDATE })
-      // res.redirect('/')
 
+      // await SequelizePool.query(`UPDATE projects(
+      //   "name"='${req.body.name}',
+      //   "startdate"='${req.body.startdate}',
+      //   "enddate"='${req.body.enddate}',
+      //   "description"='${req.body.description}',
+      //   "duration"='${vRangeDuration} ${textDate}',
+      //   "laravel"='${laravel}',
+      //   "sass"='${sass}',
+      //   "php"='${php}',
+      //   "python"='${python}',
+      //   "image"='${req.body.image}',
+      //   "createdAt"='${project.createdAt}',
+      //   "updatedAt"='${new Date()}'
+      // ) SET "id" = ${id}`)
     } else {
       console.error('Data not found')
     }
@@ -413,11 +394,10 @@ async function deleteProject(req, res) {
   if (req.session.loginPOST) {
     
     const { id } = req.params
+    // const project = await SequelizePool.query(`SELECT * FROM projects WHERE id = ${id}`)
     const project = await Project.findOne({ where: { id: id } })
     
     try{
-      // komentar dibawah menggunakan query sequelize (DELETE)
-      // const projectSql = `DELETE FROM "Projects" WHERE "id"=${id}`
       if (project) {
         if (project.image) {
           const imageDirectory = path.join('public/assets/image', project.image)
@@ -427,6 +407,7 @@ async function deleteProject(req, res) {
             console.error(`Error deleting image file: ${error.message}`);
           }
         }
+        // await SequelizePool.query(`DELETE FROM projects WHERE id = ${id}`)
         await Project.destroy({
           where: {id: id}
         })
@@ -443,7 +424,6 @@ async function deleteProject(req, res) {
   }
 }
 
-
 async function detail(req, res) {
   const { id } = req.params //req params => mengambil data bedasarkan URL
   const userID = req.session.idUser
@@ -459,6 +439,15 @@ async function detail(req, res) {
           profileName = profile.first_name
           bool =  profileID === userID
       }
+
+      // const dataProject = `
+      //                       SELECT projects.*, users.*, profiles.*
+      //                       FROM projects
+      //                       LEFT JOIN users ON projects.user_id = users.id
+      //                       LEFT JOIN profiles ON projects.profile_id = profiles.id
+      //                       WHERE projects.id = ${id}
+      //                     `
+    
       const dataProject = await Project.findOne({
         where: { user_id: userID },
         include: User,
