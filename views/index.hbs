@@ -144,19 +144,8 @@
                             </div>
                             <div class="col-lg-4 col-sm-12 d-flex justify-content-center">
                                 <div class="card mt-3 mx-3 w-100 shadow p-3 mb-5 bg-body rounded">
-                                    {{!-- {{#if successLogin }}
-                                        <img src="assets/image/foto.jpg" class="card-img-top" style="height: 320px;" alt="...">
-                                    {{else }}
-                                    {{/if }} --}}
                                     <img src="assets/image/foto.jpg" class="card-img-top" style="height: 320px;" alt="...">
                                     <div class="card-body">
-                                        {{!-- {{#if successLogin }}
-                                            <h5 class="card-title text-center ">
-                                                    {{ profileFirstName }} {{ profileSecondName }}
-                                            </h5>
-                                        {{else }}
-                                            <h5 class="card-title text-center"> Log in and complete your profile</h5>
-                                        {{/if }} --}}
                                         <h5 class="card-title text-center">Rinaldi Rizqi Fauzi</h5>
                                         <p class="card-text text-center ">Fullstack Developer</p>
                                     </div>
@@ -179,7 +168,7 @@
                                 <img src="assets/image/{{ this.image }}" class="card-img-top"  style="height: 260px;" alt="...">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ name }}</h5> 
-                                    <p class="fst-italic fs-6 float-end"> {{ Profile.first_name  }} {{ Profile.second_name }} </p>
+                                    <p class="fst-italic fs-6 float-end">   {{ Profile.first_name  }} {{ Profile.second_name }}  {{ user_id }}</p>
                                     <p class="text-muted fs-6">Duration: {{ duration }}</p>
                                     <p class="card-text mt-1">{{ description }}</p>
                                     <p class="card-text mt-4">
