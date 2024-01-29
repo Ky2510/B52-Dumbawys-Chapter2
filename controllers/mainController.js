@@ -4,7 +4,6 @@ const { Profile } = require('../models')
 
 const home = async (req, res) => {
     try {
-        // ORM => Object-Relational Mapping 
         const userID = req.session.idUser
         if (userID) {
             const profile = await Profile.findOne({
@@ -39,10 +38,13 @@ const home = async (req, res) => {
               successLogin: req.session.loginPOST 
             })
         }else{
+          const userIds = []
           const data = await Project.findAll({
-            include: User, 
-            include: Profile,
+            include: [
+              { model: User, include: Profile } 
+            ]
           })
+
           res.render('index', { 
             data, 
             title: "Home",

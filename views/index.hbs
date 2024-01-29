@@ -168,7 +168,9 @@
                                 <img src="assets/image/{{ this.image }}" class="card-img-top"  style="height: 260px;" alt="...">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ name }}</h5> 
-                                    <p class="fst-italic fs-6 float-end">   {{ Profile.first_name  }} {{ Profile.second_name }}  {{ user_id }}</p>
+                                    <p class="fst-italic fs-6 float-end">   
+                                         {{ User.Profile.first_name }} {{ User.Profile.second_name }}
+                                    </p>
                                     <p class="text-muted fs-6">Duration: {{ duration }}</p>
                                     <p class="card-text mt-1">{{ description }}</p>
                                     <p class="card-text mt-4">
