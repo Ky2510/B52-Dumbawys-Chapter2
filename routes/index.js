@@ -1,6 +1,6 @@
 const { register, loginPOST, registerPOST, login, logout } = require('../controllers/authController')
 const { home } = require('../controllers/mainController')
-const { profile, postProfile, addDescriptionProfile, addRoleProfile } = require('../controllers/profileController')
+const { profile, postProfile, addDescriptionProfile, addRoleProfile, editProfile, updateProfile } = require('../controllers/profileController')
 const { detail, addProject, postProject, editProjects, updateProject, deleteProject } = require('../controllers/projectController')
 const uploadImage = require('../middlewares/uploadImage')
 
@@ -25,6 +25,7 @@ router.get('/profile', profile)
 router.post('/post-profile', postProfile)
 router.post('/add-description-profile/:id', addDescriptionProfile)
 router.post('/add-role-profile/:id', addRoleProfile)
-
+router.get('/edit-profile/:id', editProfile)
+router.post('/update-profile/:id', updateProfile)
 
 module.exports = router

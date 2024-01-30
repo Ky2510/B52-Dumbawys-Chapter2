@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>D Chapter2 - {{title}}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary px-5">
+            <div class="container-fluid">
+                <a class="navbar-brand"  href="#"><img src="assets/image/logo.png" alt="" style="width: 45px;"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" aria-current="page" href="/">Home</a>
+                        </li>
+                        {{#if successLogin }}
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/addProject">Add Project</a>
+                            </li>
+                        {{/if}}
+                    </ul>
+                    <ul class="navbar-nav ml-auto me-4 mb-2 mb-lg-0">
+                        {{#if successLogin }}
+                           <li class="nav-item">
+                                <a class="nav-link fw-bold dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Hello, {{#if profileActive }} {{ profileFirstName }}  {{else }} {{ user }} {{/if }}</a>
+                                <div class="dropdown">
+                                    <ul class="dropdown-menu">
+                                        {{#if profileActive }}
+                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createProfileModal1"> Profile</a></li>
+                                        {{/if }}
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="nav-item ms-3">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+                        {{else }}
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="/login">Login</a>
+                            </li>
+                        {{/if }}
+                    </ul>
+                    <a type="button" href="/contact" class="btn btn-dark btn-md">Contact</a>
+                </div>
+            </div>
+        </nav>
+        <div class="card" style="background-color: #e1e5e9;">
+            <div class="card-body mt-4">
+                <div class="card shadow p-3 mb-5 bg-body rounded mt-5 mx-5">
+                    <div class="card-body" style="background-color: white;">
+                        <form action="/update-profile/{{ profileID }}" method="post">
+                            <div class="row">
+                                <div class="col-lg-8 col-sm-12">
+                                    <div class="mx-5">
+                                        <h4 class="mt-5">Update your profile</h4> 
+                                        <div class="mb-3">
+                                            <div class="form-floating mt-4">
+                                                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" name="description" style="height: 100px">{{ profileDescription }}</textarea>
+                                                <label for="floatingTextarea2">Description</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mx-5 ">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="place_birth" class="form-label fw-bolder" for="place_birth">Place Birth</label>
+                                                    <input type="text" class="form-control shadow bg-body rounded" name="place_birth" id="place_birth"  value="{{ profilePlaceBirthName }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label for="date_birth" class="form-label fw-bolder" for="date_birth">Date Birth</label>
+                                                    <input type="date" class="form-control shadow bg-body rounded" name="date_birth" id="date_birth"  value="{{ profileDateBirthName }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phone_number" class="form-label fw-bolder" for="phone_number">Phone Number</label>
+                                            <input type="number" class="form-control shadow bg-body rounded" name="phone_number" id="phone_number"  value="{{ profilePhoneNumber }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-floating">
+                                                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" name="address"  style="height: 80px">{{ profileAddress }}</textarea>
+                                                <label for="floatingTextarea2">Address</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-12">
+                                    <div class="card mt-3 mx-3 w-100 shadow p-3 mb-5 bg-body rounded">
+                                        <img src="/assets/image/foto.jpg" class="card-img-top" style="height: 320px;" alt="...">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="mb-3">
+                                                    <input type="text" class="form-control shadow bg-body rounded" name="first_name" id="first_name"  value="{{ profileFirstName }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <input type="text" class="form-control shadow bg-body rounded" name="second_name" id="second_name"  value="{{ profileSecondName }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <input type="text" class="form-control shadow bg-body rounded" name="role" id="role" value="{{ profileRole }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-md btn-secondary rounded-5">Update Your Profile</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    </body>
+</html>

@@ -186,53 +186,52 @@ const updateProject = async (req, res) => {
     try {
         const project = await Project.findOne({ where: { id: id } })
         if (project) {
-        const {name, description, startdate, enddate, sass, laravel, php, python } = req.body
-        if (req.file) {
-            image = req.file.filename
-            if (project.image) {
-            const imageDirectory = path.join('public/assets/image', project.image)
-                try {
-                    await fs.unlink(imageDirectory)
-                } catch (error) {
-                    console.error(`Error delete image file: ${error.message}`)
-                }
-            }
-        } else {
-            image = project.image 
-        }
+          const {name, description, startdate, enddate, sass, laravel, php, python } = req.body
+          if (req.file) {
+              image = req.file.filename
+              if (project.image) {
+              const imageDirectory = path.join('public/assets/image', project.image)
+                  try {
+                      await fs.unlink(imageDirectory)
+                  } catch (error) {
+                      console.error(`Error delete image file: ${error.message}`)
+                  }
+              }
+          } else {
+              image = project.image 
+          }
         
-        const newImageFilePath = path.join('public/assets/image', image)
-        console.log(`File baru ${newImageFilePath} akan disimpan`)
-        
+          const newImageFilePath = path.join('public/assets/image', image)
+          
 
-        const starDateV = new Date(startdate)
-        const endDateV = new Date(enddate)
-        const duration = endDateV - starDateV
-        const rangeDuration = duration / (1000 * 60 * 60 * 24)
-        let vRangeDuration
-        let textDate
+          const starDateV = new Date(startdate)
+          const endDateV = new Date(enddate)
+          const duration = endDateV - starDateV
+          const rangeDuration = duration / (1000 * 60 * 60 * 24)
+          let vRangeDuration
+          let textDate
         
-        if (rangeDuration > 29) { 
-            vRangeDuration = Math.floor(rangeDuration / 30)
-            textDate = "month"
-        } else {
-            vRangeDuration = rangeDuration
-            textDate = "day"
-        }
+          if (rangeDuration > 29) { 
+              vRangeDuration = Math.floor(rangeDuration / 30)
+              textDate = "month"
+          } else {
+              vRangeDuration = rangeDuration
+              textDate = "day"
+          }
         
-        await project.update({
-            name,
-            description,
-            startdate,
-            enddate,
-            duration: `${vRangeDuration} ${textDate}`,
-            laravel: laravel === 'laravel' ? 'laravel' : null,
-            sass: sass === 'sass' ? 'sass' : null,
-            php: php === 'php' ? 'php' : null,
-            python: python === 'python' ? 'python' : null,
-            image: image
-            }, { where: {id: id}})
-            res.redirect('/')
+          await project.update({
+              name,
+              description,
+              startdate,
+              enddate,
+              duration: `${vRangeDuration} ${textDate}`,
+              laravel: laravel === 'laravel' ? 'laravel' : null,
+              sass: sass === 'sass' ? 'sass' : null,
+              php: php === 'php' ? 'php' : null,
+              python: python === 'python' ? 'python' : null,
+              image: image
+              }, { where: {id: id}})
+              res.redirect('/')
         } else {
             console.error('Data not found')
         }

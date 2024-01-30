@@ -1,4 +1,5 @@
 const moment = require('moment')
+const { where } = require('sequelize')
 const { Profile } = require('../models')
 
 const profile = async (req, res) => {
@@ -61,7 +62,7 @@ const profile = async (req, res) => {
           console.error('Unable to connect to the database:', error)
         }
     }else{
-    res.redirect('/')
+      res.redirect('/')
     }
 }
 
@@ -137,4 +138,91 @@ const addRoleProfile = async (req, res) => {
     }
 }
 
-module.exports = { profile, postProfile, addDescriptionProfile, addRoleProfile }
+const editProfile = async (req, res) => {
+  if (req.session.loginPOST) {
+    try {
+      const userID = req.session.idUser
+      if (userID) {
+        const profile = await Profile.findOne({
+            where: { user_id: userID }
+        })
+
+        let profilePlaceBirthName
+        let profileDateBirthName
+        let profilePhoneNumber
+        let profileAddress
+        let profileDescription
+        let profileFirstName
+        let profileSecondName
+        let profileRole
+        let profileID
+
+        if (profile) {
+          profilePlaceBirthName = profile.place_birth
+          profileDateBirthName = moment(profile.date_birth).format('YYYY-MM-DD')
+          profilePhoneNumber = profile.phone_number
+          profileAddress = profile.address
+          profileDescription = profile.description
+          profileFirstName = profile.first_name
+          profileSecondName = profile.second_name
+          profileRole = profile.role
+          profileID = profile.user_id
+          
+        }
+        res.render('editProfile', {
+          title: "Edit Profile",
+          profilePlaceBirthName,
+          profileDateBirthName,
+          profilePhoneNumber,
+          profileAddress,
+          profileDescription,
+          profileFirstName,
+          profileSecondName,
+          profileRole,
+          profileID
+        })
+      }else {
+        res.render('index', { 
+          title: "Edit Profile",
+          user: req.session.user,
+          successLogin: req.session.loginPOST 
+        })
+      }
+    } catch (error) {
+      console.error('Unable to connect to the database:', error)
+    }
+  }else{
+    res.redirect('/')
+  }
+
+  res.render('editProfile')
+}
+
+const updateProfile = async (req, res) => {
+  try {
+    const userID = req.session.idUser
+    const profile = await Profile.findOne({ where: { user_id: userID }})
+    if (profile) {
+      const {first_name, second_name, place_birth, date_birth, phone_number, description, role, address } = req.body
+
+      await Profile.update({
+        first_name,
+        second_name,
+        place_birth,
+        date_birth,
+        phone_number,
+        description,
+        role,
+        address
+      },{ where: { user_id: userID }})
+
+      res.redirect('/profile')
+    }else {
+      console.log("data not found")
+    }
+  } catch (error) {
+    console.error('Data failed update to the database:', error)
+  }
+}
+
+module.exports = { profile, postProfile, addDescriptionProfile, addRoleProfile, editProfile, updateProfile }
